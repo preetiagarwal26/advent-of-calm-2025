@@ -1,0 +1,42 @@
+{
+  "$schema": "https://calm.finos.org/release/1.1/meta/calm.json",
+  "unique-id": "invalid-relationship-demo",
+  "name": "Invalid Relationship Demo",
+  "description": "Demonstrates why mixing 'interacts' and 'connects' in one relationship fails CALM validation.",
+  "nodes": [
+    {
+      "unique-id": "auth-service",
+      "node-type": "service",
+      "name": "Auth Service",
+      "description": "Service used in the demo"
+    },
+    {
+      "unique-id": "auth-database",
+      "node-type": "database",
+      "name": "Auth Database",
+      "description": "Database used in the demo"
+    },
+    {
+      "unique-id": "customer",
+      "node-type": "actor",
+      "name": "Customer",
+      "description": "Actor used in the demo"
+    }
+  ],
+  "relationships": [
+    {
+      "unique-id": "bad-relationship",
+      "description": "Incorrectly mixes interacts and connects in one relationship",
+      "relationship-type": {
+        "interacts": {
+          "actor": "customer",
+          "nodes": ["auth-service"]
+        },
+        "connects": {
+          "source": { "node": "auth-service" },
+          "destination": { "node": "auth-database" }
+        }
+      }
+    }
+  ]
+}

@@ -1,4 +1,5 @@
-    {
+{
+  "$schema": "https://calm.finos.org/release/1.1/meta/calm.json",
   "unique-id": "customer-auth-architecture",
   "name": "Customer Authentication Architecture",
   "description": "Architecture for the customer authentication service and its data store.",
