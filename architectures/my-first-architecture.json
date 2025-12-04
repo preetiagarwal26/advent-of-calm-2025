@@ -1,18 +1,116 @@
-{
-  "$schema": "https://calm.finos.org/release/1.0/meta/calm.json",
+    {
+  "unique-id": "customer-auth-architecture",
+  "name": "Customer Authentication Architecture",
+  "description": "Architecture for the customer authentication service and its data store.",
   "metadata": [
     {
-      "version": "1.0.0",
-      "created-by": "Architecture Team"
+      "version": "1.1.0",
+      "created-by": "Architecture Team",
+      "environment": "development"
     }
   ],
   "nodes": [
     {
+      "unique-id": "authentication-system",
+      "name": "Authentication System",
+      "node-type": "system",
+      "description": "Logical system boundary that contains the authentication service and its database."
+    },
+    {
       "unique-id": "auth-service",
       "name": "Customer Authentication Service",
       "node-type": "service",
-      "description": "Validates user credentials and manages session tokens for customer applications. Provides secure authentication and session lifecycle management."
+      "description": "Validates user credentials and manages session tokens for customer applications. Provides secure authentication and session lifecycle management.",
+      "interfaces": [
+        {
+          "unique-id": "service-container",
+          "image": "auth-service:2.1.0"
+        },
+        {
+          "unique-id": "service-port",
+          "port": 443
+        }
+      ],
+      "metadata": {
+        "owner": "Auth Team",
+        "runtime": "Java 17",
+        "replicas": 3
+      }
+    },
+    {
+      "unique-id": "customer",
+      "name": "Customer (End User)",
+      "node-type": "actor",
+      "description": "An end user who authenticates to the system to access customer-facing applications.",
+      "metadata": {
+        "user-type": "end-customer"
+      }
+    },
+    {
+      "unique-id": "auth-database",
+      "name": "Authentication Database",
+      "node-type": "database",
+      "description": "Stores user credentials, session tokens, and authentication events for the authentication service.",
+      "interfaces": [
+        {
+          "unique-id": "db-host",
+          "host": "auth-db.internal.local"
+        },
+        {
+          "unique-id": "db-port",
+          "port": 5432
+        }
+      ],
+      "metadata": {
+        "owner": "Platform DB Team",
+        "engine": "PostgreSQL 14",
+        "backup": "daily"
+      }
     }
   ],
-  "relationships": []
+  "relationships": [
+    {
+      "unique-id": "auth-service-to-auth-database",
+      "description": "Authentication service connects to the authentication database for credential validation and session persistence.",
+      "relationship-type": {
+        "connects": {
+          "source": {
+            "node": "auth-service",
+            "interfaces": ["service-port"]
+          },
+          "destination": {
+            "node": "auth-database",
+            "interfaces": ["db-port"]
+          }
+        }
+      },
+      "protocol": "JDBC"
+    },
+    {
+      "unique-id": "customer-interacts-auth-service",
+      "description": "Customer interacts with the authentication service to sign in and obtain session tokens.",
+      "relationship-type": {
+        "interacts": {
+          "actor": "customer",
+          "nodes": [
+            "auth-service"
+          ]
+        }
+      },
+      "protocol": "HTTPS"
+    },
+    {
+      "unique-id": "authentication-system-composed-of",
+      "description": "Authentication system is composed of the authentication service and its database.",
+      "relationship-type": {
+        "composed-of": {
+          "container": "authentication-system",
+          "nodes": [
+            "auth-service",
+            "auth-database"
+          ]
+        }
+      }
+    }
+  ]
 }
